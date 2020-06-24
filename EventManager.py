@@ -83,3 +83,6 @@ class EventPlayerMove(BaseEvent):
 
 class EventSwitch(BaseEvent):
     name = "Attack <-> Defense"
+
+class EventRestart(BaseEvent):
+    name = 'Game Restart'
