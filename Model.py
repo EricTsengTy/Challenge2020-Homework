@@ -122,6 +122,11 @@ class GameEngine:
         elif isinstance(event, EventSwitch):
             self.players[0].speed, self.players[1].speed = self.players[1].speed, self.players[0].speed
             self.attacker, self.defenser = self.defenser, self.attacker
+        elif isinstance(event, EventRestart):
+            self.initialize()
+            self.timer = Const.GAME_LENGTH
+            self.switch_timer = Const.SWITCH_LENGTH
+            self.state_machine.push(Const.STATE_PLAY)
 
     def update_menu(self):
         '''
@@ -163,6 +168,7 @@ class Player:
         self.player_id = player_id
         self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        self.score = 0
 
     def move_direction(self, direction: str, opponent):
         '''
