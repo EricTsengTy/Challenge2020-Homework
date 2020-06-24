@@ -75,6 +75,8 @@ class GameEngine:
         self.clock = pg.time.Clock()
         self.state_machine.push(Const.STATE_MENU)
         self.players = [Player(0), Player(1)]
+        self.attacker = "Player 0"
+        self.defenser = "Player 1"
 
     def notify(self, event: BaseEvent):
         '''
@@ -91,8 +93,14 @@ class GameEngine:
                 self.update_objects()
 
                 self.timer -= 1
+                self.switch_timer -= 1
                 if self.timer == 0:
                     self.ev_manager.post(EventTimesUp())
+                if self.switch_timer == 0:
+                    self.ev_manager.post(EventSwitch())
+                    self.switch_timer = Const.SWITCH_LENGTH
+            elif cur_state == Const.STATE_STOP:
+                pass
             elif cur_state == Const.STATE_ENDGAME:
                 self.update_endgame()
 
@@ -107,10 +115,13 @@ class GameEngine:
             self.running = False
 
         elif isinstance(event, EventPlayerMove):
-            self.players[event.player_id].move_direction(event.direction)
+            self.players[event.player_id].move_direction(event.direction, self.players[0 if event.player_id != 0 else 1])
 
         elif isinstance(event, EventTimesUp):
             self.state_machine.push(Const.STATE_ENDGAME)
+        elif isinstance(event, EventSwitch):
+            self.players[0].speed, self.players[1].speed = self.players[1].speed, self.players[0].speed
+            self.attacker, self.defenser = self.defenser, self.attacker
 
     def update_menu(self):
         '''
@@ -141,6 +152,7 @@ class GameEngine:
         self.running = True
         self.ev_manager.post(EventInitialize())
         self.timer = Const.GAME_LENGTH
+        self.switch_timer = Const.SWITCH_LENGTH
         while self.running:
             self.ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
@@ -152,13 +164,15 @@ class Player:
         self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
 
-    def move_direction(self, direction: str):
+    def move_direction(self, direction: str, opponent):
         '''
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
         '''
+        pre_position = pg.Vector2(self.position)
         self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
-
+        if self.position.distance_to(opponent.position) < 2 * Const.PLAYER_RADIUS:
+            self.position = pre_position
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))

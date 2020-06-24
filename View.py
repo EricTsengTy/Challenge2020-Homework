@@ -75,6 +75,25 @@ class GraphicalView:
             center = list(map(int, player.position))
             pg.draw.circle(self.screen, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
 
+        # draw time
+        font = pg.font.Font(None, 36)
+        text_surface = font.render(f'End: {self.model.timer / Const.FPS:.1f}', 1, pg.Color('gray88'))
+        text_down_right = (Const.ARENA_SIZE[0] * 0.9, Const.ARENA_SIZE[1] * 0.9)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_down_right))
+
+        # draw switch time
+        text_surface = font.render(f'Switch: {self.model.switch_timer / Const.FPS:.1f}', 1, pg.Color('gray88'))
+        text_down_right = (Const.ARENA_SIZE[0] * 0.9, Const.ARENA_SIZE[1] * 0.85)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_down_right))
+
+        # draw players' attack-defense state
+        text_surface = font.render(f'Attacker: {self.model.attacker}', 1, pg.Color('gray88'))
+        text_up = (Const.ARENA_SIZE[0] * 0.5, Const.ARENA_SIZE[1] * 0.05)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_up))
+        text_surface = font.render(f'Defenser: {self.model.defenser}', 1, pg.Color('gray88'))
+        text_up = (Const.ARENA_SIZE[0] * 0.5, Const.ARENA_SIZE[1] * 0.10)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_up))
+
         pg.display.flip()
 
     def render_stop(self):
