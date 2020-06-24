@@ -123,7 +123,6 @@ class GameEngine:
             self.players[0].speed, self.players[1].speed = self.players[1].speed, self.players[0].speed
             self.attacker, self.defenser = self.defenser, self.attacker
         elif isinstance(event, EventRestart):
-            self.initialize()
             self.timer = Const.GAME_LENGTH
             self.switch_timer = Const.SWITCH_LENGTH
             self.state_machine.push(Const.STATE_PLAY)
